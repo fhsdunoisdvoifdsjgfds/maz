@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../../core/config/my_colors.dart';
 import '../../../core/models/profile.dart';
@@ -43,25 +44,37 @@ class _ProfilePageState extends State<ProfilePage> {
   }
 
   void onSave() async {
-    await saveProfile(
-      Profile(
-        name: con1.text,
-        email: con2.text,
-        username: con3.text,
-        image: con4.text,
-      ),
-    ).then((_) {
-      if (mounted) context.pop();
-    });
+    final profile = Profile(
+      name: con1.text,
+      email: con2.text,
+      username: con3.text,
+      image: con4.text,
+    );
+    await saveProfile(profile);
+    if (mounted) context.pop();
+  }
+
+  Future<void> saveProfile(Profile profile) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString('name', profile.name);
+    await prefs.setString('email', profile.email);
+    await prefs.setString('username', profile.username);
+    await prefs.setString('image', profile.image);
   }
 
   @override
   void initState() {
     super.initState();
-    con1.text = profile.name;
-    con2.text = profile.email;
-    con3.text = profile.username;
-    con4.text = profile.image;
+    loadProfile();
+  }
+
+  Future<void> loadProfile() async {
+    final prefs = await SharedPreferences.getInstance();
+    con1.text = prefs.getString('name') ?? '';
+    con2.text = prefs.getString('email') ?? '';
+    con3.text = prefs.getString('username') ?? '';
+    con4.text = prefs.getString('image') ?? '';
+    setState(() {});
   }
 
   @override
@@ -148,6 +161,11 @@ class _ProfilePageState extends State<ProfilePage> {
                   hintText: 'Username',
                 ),
                 const SizedBox(height: 55),
+                const SizedBox(height: 55),
+                PButton(
+                  title: 'Save',
+                  onPressed: onSave,
+                ),
               ],
             ),
           ),

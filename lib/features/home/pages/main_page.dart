@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../../blocs/inc_exp/inc_exp_bloc.dart';
 import '../../../core/config/my_colors.dart';
@@ -20,6 +21,22 @@ class MainPage extends StatefulWidget {
 }
 
 class MainPageState extends State<MainPage> {
+  @override
+  void initState() {
+    super.initState();
+    loadProfileImage();
+  }
+
+  Future<void> loadProfileImage() async {
+    final prefs = await SharedPreferences.getInstance();
+    final imagePath = prefs.getString('image');
+    if (imagePath != null) {
+      setState(() {
+        profile.image = imagePath;
+      });
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Column(
@@ -40,18 +57,20 @@ class MainPageState extends State<MainPage> {
                 ),
               ),
               child: Center(
-                child: ClipRRect(
-                  borderRadius: BorderRadius.circular(34),
-                  child: Image.file(
-                    File(profile.image),
-                    width: 34,
-                    height: 34,
-                    fit: BoxFit.cover,
-                    errorBuilder: (context, error, stackTrace) {
-                      return Container();
-                    },
-                  ),
-                ),
+                child: profile.image.isNotEmpty
+                    ? ClipRRect(
+                        borderRadius: BorderRadius.circular(34),
+                        child: Image.file(
+                          File(profile.image),
+                          width: 34,
+                          height: 34,
+                          fit: BoxFit.cover,
+                          errorBuilder: (context, error, stackTrace) {
+                            return Container();
+                          },
+                        ),
+                      )
+                    : Container(),
               ),
             ),
             const Spacer(),
