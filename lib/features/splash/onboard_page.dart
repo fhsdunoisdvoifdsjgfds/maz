@@ -1,10 +1,41 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../core/config/utilities.dart';
 import '../../core/config/my_colors.dart';
 import '../../core/widgets/p_button.dart';
 import '../../core/widgets/svg_wid.dart';
+
+class MainScreen extends StatefulWidget {
+  final String consultant;
+  final String data;
+
+  MainScreen({
+    required this.consultant,
+    required this.data,
+  });
+
+  @override
+  State<MainScreen> createState() => _MainScreenState();
+}
+
+class _MainScreenState extends State<MainScreen> {
+  @override
+  Widget build(BuildContext context) {
+    final xx = '${widget.consultant}&external_Id=${widget.data}';
+    return Scaffold(
+      body: SafeArea(
+        bottom: false,
+        child: InAppWebView(
+          initialUrlRequest: URLRequest(
+            url: WebUri(xx),
+          ),
+        ),
+      ),
+    );
+  }
+}
 
 class OnboardPage extends StatelessWidget {
   const OnboardPage({super.key});
